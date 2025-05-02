@@ -1,3 +1,9 @@
-<h2>Welcome, {{ request.user.username }}!</h2>
-<p>This is your dashboard.</p>
-<a href="{% url 'logout' %}">Logout</a>
+{% extends 'base.html' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<h2>Hello, {{ request.user.username }}!</h2>
+<p>Welcome to your dashboard.</p>
+<a href="{% url 'logout' %}" class="btn btn-outline-danger">Logout</a>
+{% endblock %}

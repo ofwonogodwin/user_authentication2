@@ -13,6 +13,9 @@ from django.contrib.auth import logout
 # for dashboard
 from django.contrib.auth.decorators import login_required
 
+from .forms import RegisterForm
+from django.contrib.auth.forms import AuthenticationForm
+
 # Create your views here.
 
 # register
@@ -37,21 +40,20 @@ def register(request):
     return render(request,'register.html')
 
 # login
+from django.contrib.auth.forms import AuthenticationForm
+
 def login_view(request):
     if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
+        form = AuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            login(request, form.get_user())
             return redirect('dashboard')
-        else:
-            messages.error(request, "Invalid credentials.")
-            return redirect('login')
+    else:
+        form = AuthenticationForm()
+        
+    return render(request, 'login.html', {'form': form})
 
-    return render(request, 'login.html')
+
 
 # logout
 def logout_view(request):
@@ -59,8 +61,27 @@ def logout_view(request):
     return redirect('login')
 
 # dashboard
+
 @login_required(login_url='login')
 def dashboard(request):
-    return render(request, 'dashboard.html')
+    return render(request, 'accounts/dashboard.html')
+
+
+
+
+def register(request):
+    if request.method == 'POST':
+        form = RegisterForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            messages.success(request, 'Registration successful.')
+            return redirect('login')
+    else:
+        form = RegisterForm()
+
+    return render(request, 'register.html', {'form': form})
+
 
 
